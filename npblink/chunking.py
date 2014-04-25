@@ -13,29 +13,34 @@ Each chunk object will have
 """
 from __future__ import division, print_function, absolute_import
 
-import math
-
 import networkx as nx
 
-import nxmctree
-from nxmctree.sampling import sample_history
+import npmctree
+from npmctree.sampling import sample_history
+
+OFF_STATE = 0
+ON_STATE = 1
 
 
 class Chunk(object):
-    def __init__(self, idx, all_fg_states):
+    def __init__(self, idx, nfg):
+        # init the chunk index and the number of foreground states
         self.idx = idx
+        self.nfg = nfg
+        # init some per-chunk information
         self.structural_nodes = set()
-        self.data_allowed_states = set(all_fg_states)
-        self.bg_allowed_states = set(all_fg_states)
-        self.state_to_bg_penalty = dict((s, 0) for s in all_fg_states)
+        self.data_allowed_states = np.ones(nfg, dtype=bool)
+        self.bg_allowed_states = np.ones(nfg, dtype=bool)
+        self.state_to_bg_penalty = np.zeros(nfg, dtype=float)
 
     def get_lmap(self):
-        lmap = dict()
-        for state in self.data_allowed_states & self.bg_allowed_states:
-            lmap[state] = math.exp(-self.state_to_bg_penalty[state])
+        lmap = (self.data_allowed_states *
+                self.bg_allowed_states *
+                np.exp(-self.state_to_bg_penalty))
         return lmap
 
 
+#TODO Q_meta should changed from a DiGraph to a dense array
 def _blinking_edge(
         node_to_tm,
         primary_to_tol, Q_meta,
@@ -48,7 +53,9 @@ def _blinking_edge(
 
     """
     va, vb = edge
-    all_states = {False, True}
+
+    # hardcode the number of foreground states
+    nfg = 2
 
     # Initialize the current time, the current chunk,
     # and the current primary state.
@@ -68,17 +75,13 @@ def _blinking_edge(
         # For this segment determine the blink states allowed
         # by the primary process.
         if primary_to_tol[primary_state] == fg_track.name:
-            bg_allowed_states = {True}
-        else:
-            bg_allowed_states = {False, True}
-        chunk.bg_allowed_states &= bg_allowed_states
+            chunk.bg_allowed_states[OFF_STATE] = False
 
-        # Add the codon transition rate penalty for the True blink state.
+        # Add the codon transition rate penalty for ON_STATE.
         if use_bg_penalty:
-            if Q_meta.has_edge(primary_state, fg_track.name):
-                rate_sum = Q_meta[primary_state][fg_track.name]['weight']
-                amount = rate_sum * edge_rate * (next_tm - tm)
-                chunk.state_to_bg_penalty[True] += amount
+            rate_sum = Q_meta[primary_state, fg_track.name]
+            amount = rate_sum * edge_rate * (next_tm - tm)
+            chunk.state_to_bg_penalty[ON_STATE] += amount
 
         # If the event is a foreground transition
         # then create a new chunk tree node and add a chunk tree edge.
@@ -88,7 +91,7 @@ def _blinking_edge(
             # this is the sentinel event for the branch endpoint
             pass
         elif ev.track is fg_track:
-            next_chunk = Chunk(len(chunks), all_states)
+            next_chunk = Chunk(len(chunks), nfg)
             chunks.append(next_chunk)
             chunk_edge = (chunk.idx, next_chunk.idx)
             chunk_tree.add_edge(*chunk_edge)
