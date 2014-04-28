@@ -51,6 +51,7 @@ from npblink.raoteh import (
 
 import npmodel
 import npmodelb
+import npdata
 
 
 ###############################################################################
@@ -80,7 +81,11 @@ def get_blink_dwell_times(T, node_to_tm, blink_tracks):
     return dwell_off, dwell_on
 
 
-def run(model, primary_to_tol, interaction_map, track_to_node_to_data_fset):
+def run(model, primary_to_tol, interaction_map, primary_data, tol_data):
+    """
+
+    """
+    # FIXME: the old data was called 'track_to_node_to_data_fset'
 
     # Get the rooted directed tree shape.
     T, root = model.get_T_and_root()
@@ -319,140 +324,24 @@ def main(args):
     """
 
     """
-    # define the model
+    # Define the model.
     if args.model == 'nxmodel':
-        model = nxmodel
+        model = npmodel
     elif args.model == 'nxmodelb':
-        model = nxmodelb
+        model = npmodelb
     else:
         raise Exception
+
+    # Define the data according to a user-specified level.
+    primary_data, tol_data = get_data(level=args.data)
 
     # Get the analog of the genetic code.
     # Define track interactions.
     primary_to_tol = model.get_primary_to_tol()
     interaction_map = get_interaction_map(primary_to_tol)
-    nodes = ['N0', 'N1', 'N2', 'N3', 'N4', 'N5']
-
-    if args.data == 0:
-
-
-    elif args.data == 1:
-
-        # Alignment data only.
-        primary_data = {
-                'N0' : np.array([1, 0, 0, 0, 0, 0], dtype=bool),
-                'N1' : np.array([1, 1, 1, 1, 1, 1], dtype=bool),
-                'N2' : np.array([1, 1, 1, 1, 1, 1], dtype=bool),
-                'N3' : np.array([0, 0, 0, 0, 1, 0], dtype=bool),
-                'N4' : np.array([0, 0, 0, 0, 0, 1], dtype=bool),
-                'N5' : np.array([0, 1, 0, 0, 0, 0], dtype=bool),
-                }
-        tol_data = {
-                0 : {
-                    'N0' : np.array([1, 0], dtype=bool),
-                    'N1' : np.array([1, 1], dtype=bool),
-                    'N2' : np.array([1, 1], dtype=bool),
-                    'N3' : np.array([1, 1], dtype=bool),
-                    'N4' : np.array([1, 1], dtype=bool),
-                    'N5' : np.array([0, 1], dtype=bool),
-                    },
-                1 : {
-                    'N0' : np.array([1, 1], dtype=bool),
-                    'N1' : np.array([1, 1], dtype=bool),
-                    'N2' : np.array([1, 1], dtype=bool),
-                    'N3' : np.array([1, 1], dtype=bool),
-                    'N4' : np.array([1, 1], dtype=bool),
-                    'N5' : np.array([1, 1], dtype=bool),
-                    },
-                2 : {
-                    'N0' : np.array([1, 1], dtype=bool),
-                    'N1' : np.array([1, 1], dtype=bool),
-                    'N2' : np.array([1, 1], dtype=bool),
-                    'N3' : np.array([0, 1], dtype=bool),
-                    'N4' : np.array([0, 1], dtype=bool),
-                    'N5' : np.array([1, 1], dtype=bool),
-                    },
-                }
-
-    elif args.data == 2:
-        # Alignment and disease data.
-        data = {
-                'PRIMARY' : {
-                    'N0' : {0},
-                    'N1' : {0, 1, 2, 3, 4, 5},
-                    'N2' : {0, 1, 2, 3, 4, 5},
-                    'N3' : {4},
-                    'N4' : {5},
-                    'N5' : {1},
-                    },
-                'T0' : {
-                    'N0' : {True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {False, True},
-                    'N4' : {False, True},
-                    'N5' : {True},
-                    },
-                'T1' : {
-                    'N0' : {False},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {False, True},
-                    'N4' : {False, True},
-                    'N5' : {False, True},
-                    },
-                'T2' : {
-                    'N0' : {True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {True},
-                    'N4' : {True},
-                    'N5' : {False, True},
-                    },
-                }
-
-    elif args.data == 3:
-
-        # Alignment and fully observed disease data.
-        data = {
-                'PRIMARY' : {
-                    'N0' : {0},
-                    'N1' : {0, 1, 2, 3, 4, 5},
-                    'N2' : {0, 1, 2, 3, 4, 5},
-                    'N3' : {4},
-                    'N4' : {5},
-                    'N5' : {1},
-                    },
-                'T0' : {
-                    'N0' : {True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {True},
-                    'N4' : {True},
-                    'N5' : {True},
-                    },
-                'T1' : {
-                    'N0' : {False},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {True},
-                    'N4' : {True},
-                    'N5' : {True},
-                    },
-                'T2' : {
-                    'N0' : {True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {True},
-                    'N4' : {True},
-                    'N5' : {True},
-                    },
-                }
-    else:
-        raise Exception
 
     # Run the stochastic analysis.
-    run(model, primary_to_tol, interaction_map, data)
+    run(model, primary_to_tol, interaction_map, primary_data, tol_data)
     print()
 
 
