@@ -4,7 +4,10 @@ Model specification code.
 """
 from __future__ import division, print_function, absolute_import
 
+import numpy as np
 import networkx as nx
+
+from npmctree.util import normalized
 
 __all__ = [
         'get_Q_primary', 'get_primary_to_tol',
@@ -24,18 +27,11 @@ def get_rate_off():
 
 def get_primary_distn():
     nprimary = 6
-    return dict((i, 1/nprimary) for i in range(nprimary))
+    return normalized(np.ones(nprimary))
 
 
 def get_blink_distn():
-    rate_on = get_rate_on()
-    rate_off = get_rate_off()
-    total = rate_on + rate_off
-    distn = {
-            0 : rate_off / total,
-            1 : rate_on / total,
-            }
-    return distn
+    return normalized(np.array([get_rate_off(), get_rate_on()]))
 
 
 def get_Q_primary():

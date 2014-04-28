@@ -34,23 +34,23 @@ import argparse
 import networkx as nx
 import numpy as np
 
-import nxmctree
-from nxmctree.sampling import sample_history
+import npmctree
+from npmctree.sampling import sample_history
 
-import nxblink
-from nxblink.model import get_Q_blink, get_Q_meta, get_interaction_map
-from nxblink.util import get_node_to_tm
-from nxblink.navigation import gen_segments
-from nxblink.maxlikelihood import get_blink_rate_mle
-from nxblink.trajectory import Trajectory
-from nxblink.summary import (BlinkSummary,
+import npblink
+from npblink.model import get_Q_blink, get_Q_meta, get_interaction_map
+from npblink.util import get_node_to_tm
+from npblink.navigation import gen_segments
+from npblink.maxlikelihood import get_blink_rate_mle
+from npblink.trajectory import Trajectory
+from npblink.summary import (BlinkSummary,
         get_ell_init_contrib, get_ell_dwell_contrib, get_ell_trans_contrib)
-from nxblink.raoteh import (
+from npblink.raoteh import (
         init_tracks, gen_samples,
         update_track_data_for_zero_blen)
 
-import nxmodel
-import nxmodelb
+import npmodel
+import npmodelb
 
 
 ###############################################################################
