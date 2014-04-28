@@ -331,79 +331,49 @@ def main(args):
     # Define track interactions.
     primary_to_tol = model.get_primary_to_tol()
     interaction_map = get_interaction_map(primary_to_tol)
+    nodes = ['N0', 'N1', 'N2', 'N3', 'N4', 'N5']
 
     if args.data == 0:
-        # No data.
-        data = {
-                'PRIMARY' : {
-                    'N0' : {0, 1, 2, 3, 4, 5},
-                    'N1' : {0, 1, 2, 3, 4, 5},
-                    'N2' : {0, 1, 2, 3, 4, 5},
-                    'N3' : {0, 1, 2, 3, 4, 5},
-                    'N4' : {0, 1, 2, 3, 4, 5},
-                    'N5' : {0, 1, 2, 3, 4, 5},
-                    },
-                'T0' : {
-                    'N0' : {False, True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {False, True},
-                    'N4' : {False, True},
-                    'N5' : {False, True},
-                    },
-                'T1' : {
-                    'N0' : {False, True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {False, True},
-                    'N4' : {False, True},
-                    'N5' : {False, True},
-                    },
-                'T2' : {
-                    'N0' : {False, True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {False, True},
-                    'N4' : {False, True},
-                    'N5' : {False, True},
-                    },
-                }
+
+
     elif args.data == 1:
+
         # Alignment data only.
-        data = {
-                'PRIMARY' : {
-                    'N0' : {0},
-                    'N1' : {0, 1, 2, 3, 4, 5},
-                    'N2' : {0, 1, 2, 3, 4, 5},
-                    'N3' : {4},
-                    'N4' : {5},
-                    'N5' : {1},
+        primary_data = {
+                'N0' : np.array([1, 0, 0, 0, 0, 0], dtype=bool),
+                'N1' : np.array([1, 1, 1, 1, 1, 1], dtype=bool),
+                'N2' : np.array([1, 1, 1, 1, 1, 1], dtype=bool),
+                'N3' : np.array([0, 0, 0, 0, 1, 0], dtype=bool),
+                'N4' : np.array([0, 0, 0, 0, 0, 1], dtype=bool),
+                'N5' : np.array([0, 1, 0, 0, 0, 0], dtype=bool),
+                }
+        tol_data = {
+                0 : {
+                    'N0' : np.array([1, 0], dtype=bool),
+                    'N1' : np.array([1, 1], dtype=bool),
+                    'N2' : np.array([1, 1], dtype=bool),
+                    'N3' : np.array([1, 1], dtype=bool),
+                    'N4' : np.array([1, 1], dtype=bool),
+                    'N5' : np.array([0, 1], dtype=bool),
                     },
-                'T0' : {
-                    'N0' : {True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {False, True},
-                    'N4' : {False, True},
-                    'N5' : {True},
+                1 : {
+                    'N0' : np.array([1, 1], dtype=bool),
+                    'N1' : np.array([1, 1], dtype=bool),
+                    'N2' : np.array([1, 1], dtype=bool),
+                    'N3' : np.array([1, 1], dtype=bool),
+                    'N4' : np.array([1, 1], dtype=bool),
+                    'N5' : np.array([1, 1], dtype=bool),
                     },
-                'T1' : {
-                    'N0' : {False, True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {False, True},
-                    'N4' : {False, True},
-                    'N5' : {False, True},
-                    },
-                'T2' : {
-                    'N0' : {False, True},
-                    'N1' : {False, True},
-                    'N2' : {False, True},
-                    'N3' : {True},
-                    'N4' : {True},
-                    'N5' : {False, True},
+                2 : {
+                    'N0' : np.array([1, 1], dtype=bool),
+                    'N1' : np.array([1, 1], dtype=bool),
+                    'N2' : np.array([1, 1], dtype=bool),
+                    'N3' : np.array([0, 1], dtype=bool),
+                    'N4' : np.array([0, 1], dtype=bool),
+                    'N5' : np.array([1, 1], dtype=bool),
                     },
                 }
+
     elif args.data == 2:
         # Alignment and disease data.
         data = {
@@ -440,7 +410,9 @@ def main(args):
                     'N5' : {False, True},
                     },
                 }
+
     elif args.data == 3:
+
         # Alignment and fully observed disease data.
         data = {
                 'PRIMARY' : {

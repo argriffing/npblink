@@ -39,24 +39,14 @@ def get_Q_primary():
     This is like a symmetric codon rate matrix that is not normalized.
 
     """
-    rate = 1
-    Q_primary = nx.DiGraph()
-    Q_primary.add_weighted_edges_from((
-        (0, 1, rate),
-        (0, 2, rate),
-        (1, 0, rate),
-        (1, 3, rate),
-        (2, 0, rate),
-        (2, 3, rate),
-        (2, 4, rate),
-        (3, 1, rate),
-        (3, 2, rate),
-        (3, 5, rate),
-        (4, 2, rate),
-        (4, 5, rate),
-        (5, 3, rate),
-        (5, 4, rate),
-        ))
+    Q_primary = np.array([
+        [0, 1, 1, 0, 0, 0],
+        [1, 0, 0, 1, 0, 0],
+        [1, 0, 0, 1, 1, 0],
+        [0, 1, 1, 0, 0, 1],
+        [0, 0, 1, 0, 0, 1],
+        [0, 0, 0, 1, 1, 0],
+        ], dtype=float)
     return Q_primary
 
 
@@ -67,15 +57,7 @@ def get_primary_to_tol():
     This is like a genetic code mapping codons to amino acids.
 
     """
-    primary_to_tol = {
-            0 : 'T0',
-            1 : 'T0',
-            2 : 'T1',
-            3 : 'T1',
-            4 : 'T2',
-            5 : 'T2',
-            }
-    return primary_to_tol
+    return np.array([0, 0, 1, 1, 2, 2], dtype=int)
 
 
 def get_T_and_root():

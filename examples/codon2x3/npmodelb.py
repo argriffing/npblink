@@ -22,7 +22,10 @@ Add a new example:
 """
 from __future__ import division, print_function, absolute_import
 
+import numpy as np
 import networkx as nx
+
+from npmctree.util import normalized
 
 __all__ = [
         'get_Q_primary', 'get_primary_to_tol',
@@ -41,31 +44,17 @@ def get_rate_off():
 
 
 def get_primary_distn():
-    distn = {
-            0 : 1 / 9,
-            1 : 4 / 9,
-            2 : 1 / 9,
-            3 : 1 / 9,
-            4 : 1 / 9,
-            5 : 1 / 9,
-            }
-    return distn
+    weights = np.array([1, 4, 1, 1, 1, 1], dtype=float)
+    return normalized(weights)
 
 
 def get_blink_distn():
-    rate_on = get_rate_on()
-    rate_off = get_rate_off()
-    total = rate_on + rate_off
-    distn = {
-            0 : rate_off / total,
-            1 : rate_on / total,
-            }
-    return distn
+    return normalized(np.array([get_rate_off(), get_rate_on()]))
 
 
 def get_Q_primary():
     """
-    This is like a symmetric codon rate matrix that is not normalized.
+    This is like an unnormalized codon rate matrix.
 
     This rate matrix has the following differences from the code2x3 matrix.
     The primary state 1 gets more probability, so it has twice as much rate in,
@@ -73,22 +62,16 @@ def get_Q_primary():
     The synonymous 4 <--> 5 transition edge is removed in this model.
 
     """
-    rate = 1
-    Q_primary = nx.DiGraph()
-    Q_primary.add_weighted_edges_from((
-        (0, 1, 2.0*rate),
-        (0, 2, rate),
-        (1, 0, 0.5*rate),
-        (1, 3, 0.5*rate),
-        (2, 0, rate),
-        (2, 3, rate),
-        (2, 4, rate),
-        (3, 1, 2.0*rate),
-        (3, 2, rate),
-        (3, 5, rate),
-        (4, 2, rate),
-        (5, 3, rate),
-        ))
+    f = 2.0 # fast
+    s = 0.5 # slow
+    Q_primary = np.array([
+        [0, f, 1, 0, 0, 0],
+        [s, 0, 0, 1, 0, 0],
+        [s, 0, 0, 1, 1, 0],
+        [0, f, 1, 0, 0, 1],
+        [0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0],
+        ], dtype=float)
     return Q_primary
 
 
@@ -99,15 +82,7 @@ def get_primary_to_tol():
     This is like a genetic code mapping codons to amino acids.
 
     """
-    primary_to_tol = {
-            0 : 'T0',
-            1 : 'T0',
-            2 : 'T1',
-            3 : 'T1',
-            4 : 'T2',
-            5 : 'T2',
-            }
-    return primary_to_tol
+    return np.array([0, 0, 1, 1, 2, 2], dtype=int)
 
 
 def get_T_and_root():
